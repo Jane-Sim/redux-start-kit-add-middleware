@@ -59,8 +59,8 @@ class App extends Component {
             </div>
           );
         })()}
-        <button onClick={CounterActions.increment}>+</button>
-        <button onClick={CounterActions.decrement}>-</button>
+        <button onClick={() => CounterActions.increment()}>+</button>
+        <button onClick={() => CounterActions.decrement()}>-</button>
       </div>
     );
   }
@@ -70,8 +70,8 @@ export default connect(
   state => ({
     number: state.counter,
     post: state.post.data,
-    loading: state.pender.pending['GET_POST'],
-    error: state.pender.failure['GET_POST'],
+    //loading: state.pender.pending['GET_POST'],
+    //error: state.pender.failure['GET_POST'],
   }),
   dispatch => ({
     CounterActions: bindActionCreators(counterActions, dispatch),

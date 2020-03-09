@@ -1,5 +1,8 @@
 import { handleActions, createAction } from 'redux-actions';
-import { applyPenders } from 'redux-pender';
+/* call: 첫번째 파라미터로 전달한 함수에 그 뒤에 있는 파라미터들은 
+전달하여 호출해줍니다. 이를 사용하면 나중에 테스트를 작성하게 될 때 용이합니다.
+ */
+import { call, put, takeEvery } from 'redux-saga/effects';
 import axios from 'axios';
 
 function getPostAPI(postId) {
@@ -8,63 +11,44 @@ function getPostAPI(postId) {
 
 // 요청 시작, 성공, 실패 액션 타입, 액션 생성 함수 정의.
 const GET_POST = 'GET_POST';
-/* redux-pender의 액션 구조는 Flux standard action(https://github.com/acdlite/flux-standard-action)
-   을 따르기 때문에, createAction으로 액션을 만들 수 있습니다. 두 번째로 들어가는 파라미터는
-   Promise를 반환하는 함수여야 합니다.
- */
+const GET_POST_SUCCESS = 'GET_POST_SUCCESS';
+const GET_POST_FAILURE = 'GET_POST_FAILURE';
 
-// 액션 생성 함수들은 모듈 내부에서 사용하니 export로 내보낼 필요X.
-export const getPost = createAction(GET_POST, getPostAPI);
+export const getPost = createAction(GET_POST, postId => postId);
+
+const something = () => ({
+  data: { title: 'hello', body: 'world' },
+});
+
+function* getPostSaga(action) {
+  console.log(call(something, ''));
+  try {
+    const response = yield call(getPostAPI, action.payload);
+    yield put({ type: GET_POST_SUCCESS, payload: response });
+  } catch (e) {
+    yield put({ type: GET_POST_FAILURE, payload: e });
+  }
+}
 
 const initialState = {
-  pending: false,
-  error: false,
   data: {
     title: '',
     body: '',
   },
 };
 
-const reducer = handleActions(
+export function* postSaga() {
+  yield takeEvery('GET_POST', getPostSaga);
+}
+
+export default handleActions(
   {
-    // 다른 일반 액션들을 관리..
+    [GET_POST_SUCCESS]: (state, action) => {
+      const { title, body } = action.payload.data;
+      return {
+        data: { title, body },
+      };
+    },
   },
   initialState
 );
-
-export default applyPenders(reducer, [
-  // 첫 번째 파라미터는 일반 리듀서, 두 번째 파라미터는 pender 관련 객체를 배열로 넣는다.
-  {
-    type: GET_POST, // type이 주어지면 이 type에 접미사를 붙인
-    // 액션 핸들러들이 담긴 객체를 만듭니다.
-    /* 요청 중일 때와 실패했을 때 추가로 해야 할 작업이 있다면
-         이렇게 onPending과 onFailure를 추가하면 됩니다.
-         onPending: (state, action) => state,
-         onFailure: (state, action) => state
-      */
-    onSuccess: (state, action) => {
-      // 성공했을 때 해야 할 작업이 따로 없으면 이 함수 또한 생략해도 됩니다.
-
-      const { title, body } = action.payload.data;
-      return {
-        data: {
-          title,
-          body,
-        },
-      };
-    },
-    onCancel: (state, action) => {
-      return {
-        data: {
-          title: '취소됨',
-          body: '취소됨',
-        },
-      };
-    },
-  },
-  /*
-  다른 pender 액션들
-  { type: GET_SOMETHING, onSuccess: (state, action) => ... },
-  { type: GET_SOMETHING, onSuccess: (state, action) => ... }
-*/
-]);
