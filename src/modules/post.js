@@ -24,9 +24,10 @@ const initialState = {
     body: '',
   },
 };
+
 const reducer = handleActions(
   {
-    // 다른 일반 액션 관리
+    // 다른 일반 액션들을 관리..
   },
   initialState
 );
@@ -52,9 +53,18 @@ export default applyPenders(reducer, [
         },
       };
     },
+    onCancel: (state, action) => {
+      return {
+        data: {
+          title: '취소됨',
+          body: '취소됨',
+        },
+      };
+    },
   },
-  /*  다른 pender 액션들을 위와 같은 객체 형태로 쓴다.
-    { type: GET_SOMETHING, onSuccess: (state, action) => ...},
-    { type: GET_SOMETHING, onSuccess: (state, action) => ...}
-  */
+  /*
+  다른 pender 액션들
+  { type: GET_SOMETHING, onSuccess: (state, action) => ... },
+  { type: GET_SOMETHING, onSuccess: (state, action) => ... }
+*/
 ]);

@@ -40,11 +40,6 @@ class App extends Component {
     // 이전 number와 현재 number가 다르면 요청을 시작합니다.
     if (this.props.number !== prevProps.number) {
       this.loadData();
-      window.addEventListener('keyup', e => {
-        if (e.key === 'Escape') {
-          this.handleCancel();
-        }
-      });
     }
   }
 
@@ -54,16 +49,16 @@ class App extends Component {
     return (
       <div>
         <h1>{number}</h1>
-        {loading ? (
-          <h2>로딩중...</h2>
-        ) : error ? (
-          <h2>오류 발생!</h2>
-        ) : (
-          <div>
-            <h2>{post.title}</h2>
-            <p>{post.body}</p>
-          </div>
-        )}
+        {(() => {
+          if (loading) return <h2>로딩중...</h2>;
+          if (error) return <h2>오류 발생!</h2>;
+          return (
+            <div>
+              <h2>{post.title}</h2>
+              <p>{post.body}</p>
+            </div>
+          );
+        })()}
         <button onClick={CounterActions.increment}>+</button>
         <button onClick={CounterActions.decrement}>-</button>
       </div>
