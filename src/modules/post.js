@@ -8,6 +8,7 @@ function getPostAPI(postId) {
 }
 
 // 요청 시작, 성공, 실패 액션 타입, 액션 생성 함수 정의.
+const GET_POST = 'GET_POST';
 const GET_POST_PENDING = 'GET_POST_PENDING';
 const GET_POST_SUCCESS = 'GET_POST_SUCCESS';
 const GET_POST_FAILURE = 'GET_POST_FAILURE';
@@ -17,7 +18,7 @@ const getPostPending = createAction(GET_POST_PENDING);
 const getPostSuccess = createAction(GET_POST_SUCCESS);
 const getPostFailure = createAction(GET_POST_FAILURE);
 
-export const getPost = postId => dispatch => {
+export const getPost = postId => {
   //먼저 요청이 시작했다는 것을 알립니다.
   dispatch(getPostPending());
 
