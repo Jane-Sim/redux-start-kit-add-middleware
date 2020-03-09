@@ -5,11 +5,22 @@ import * as counterActions from './modules/counter';
 import * as postActions from './modules/post';
 
 class App extends Component {
+  cancleRequest = null;
+
+  handleCancel = () => {
+    if (this.cancleRequest) {
+      this.cancleRequest();
+      this.cancleRequest = null;
+    }
+  };
+
   loadData = async () => {
     const { PostActions, number } = this.props;
 
     try {
-      const response = await PostActions.getPost(number);
+      const p = PostActions.getPost(number);
+      this.cancleRequest = p.cancle;
+      const response = await p;
       console.log(response);
     } catch (error) {
       console.log(error);
@@ -18,12 +29,22 @@ class App extends Component {
 
   componentDidMount() {
     this.loadData();
+    window.addEventListener('keyup', e => {
+      if (e.key === 'Escape') {
+        this.handleCancel();
+      }
+    });
   }
 
   componentDidUpdate(prevProps, prevState) {
     // 이전 number와 현재 number가 다르면 요청을 시작합니다.
     if (this.props.number !== prevProps.number) {
       this.loadData();
+      window.addEventListener('keyup', e => {
+        if (e.key === 'Escape') {
+          this.handleCancel();
+        }
+      });
     }
   }
 
@@ -54,8 +75,8 @@ export default connect(
   state => ({
     number: state.counter,
     post: state.post.data,
-    loading: state.post.pending,
-    error: state.post.error,
+    loading: state.pender.pending['GET_POST'],
+    error: state.pender.failure['GET_POST'],
   }),
   dispatch => ({
     CounterActions: bindActionCreators(counterActions, dispatch),
